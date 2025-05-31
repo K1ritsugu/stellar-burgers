@@ -1,23 +1,34 @@
 import { useState, useRef, useEffect, FC } from 'react';
 import { useInView } from 'react-intersection-observer';
-
-import { TTabMode } from '@utils-types';
-import { BurgerIngredientsUI } from '../ui/burger-ingredients';
+import { TTabMode, TIngredient } from '@utils-types';
+import { BurgerIngredientsUI } from '@ui';
+import { useSelector } from '@store';
+import { getIngredientsSelector } from '@slices';
 
 export const BurgerIngredients: FC = () => {
-  /** TODO: взять переменные из стора */
-  const buns = [];
-  const mains = [];
-  const sauces = [];
-
-  const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
-  const titleBunRef = useRef<HTMLHeadingElement>(null);
-  const titleMainRef = useRef<HTMLHeadingElement>(null);
-  const titleSaucesRef = useRef<HTMLHeadingElement>(null);
-
+  const ingredients: TIngredient[] = useSelector(getIngredientsSelector);
+  const buns = ingredients.filter((ingredient) => {
+    if (ingredient.type === 'bun') {
+      return ingredient;
+    }
+  });
+  const mains = ingredients.filter((ingredient) => {
+    if (ingredient.type === 'main') {
+      return ingredient;
+    }
+  });
+  const sauces = ingredients.filter((ingredient) => {
+    if (ingredient.type === 'sauce') {
+      return ingredient;
+    }
+  });
   const [bunsRef, inViewBuns] = useInView({
     threshold: 0
   });
+  const titleMainRef = useRef<HTMLHeadingElement>(null);
+  const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
+  const titleBunRef = useRef<HTMLHeadingElement>(null);
+  const titleSaucesRef = useRef<HTMLHeadingElement>(null);
 
   const [mainsRef, inViewFilling] = useInView({
     threshold: 0
@@ -36,7 +47,6 @@ export const BurgerIngredients: FC = () => {
       setCurrentTab('main');
     }
   }, [inViewBuns, inViewFilling, inViewSauces]);
-
   const onTabClick = (tab: string) => {
     setCurrentTab(tab as TTabMode);
     if (tab === 'bun')
@@ -46,9 +56,6 @@ export const BurgerIngredients: FC = () => {
     if (tab === 'sauce')
       titleSaucesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-
-  return null;
-
   return (
     <BurgerIngredientsUI
       currentTab={currentTab}
@@ -56,10 +63,10 @@ export const BurgerIngredients: FC = () => {
       mains={mains}
       sauces={sauces}
       titleBunRef={titleBunRef}
-      titleMainRef={titleMainRef}
       titleSaucesRef={titleSaucesRef}
       bunsRef={bunsRef}
       mainsRef={mainsRef}
+      titleMainRef={titleMainRef}
       saucesRef={saucesRef}
       onTabClick={onTabClick}
     />
