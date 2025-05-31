@@ -1,32 +1,30 @@
-import { FC, useMemo } from 'react';
-import { Preloader } from '../ui/preloader';
-import { OrderInfoUI } from '../ui/order-info';
+import { FC, useEffect, useMemo } from 'react';
+import { Preloader } from '@ui';
+import { OrderInfoUI } from '@ui';
 import { TIngredient } from '@utils-types';
+import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from '@store';
+import {
+  getOrderThunk,
+  getOrderSelector,
+  getIngredientsSelector
+} from '@slices';
 
 export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+  const dispatch = useDispatch();
+  const orderNumber = Number(useParams().number);
+  useEffect(() => {
+    dispatch(getOrderThunk(orderNumber));
+  }, [dispatch]);
+  const ingredients: TIngredient[] = useSelector(getIngredientsSelector);
+  const orderData = useSelector(getOrderSelector).order;
 
-  const ingredients: TIngredient[] = [];
-
-  /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
-
     const date = new Date(orderData.createdAt);
-
     type TIngredientsWithCount = {
       [key: string]: TIngredient & { count: number };
     };
-
     const ingredientsInfo = orderData.ingredients.reduce(
       (acc: TIngredientsWithCount, item) => {
         if (!acc[item]) {
@@ -40,17 +38,14 @@ export const OrderInfo: FC = () => {
         } else {
           acc[item].count++;
         }
-
         return acc;
       },
       {}
     );
-
     const total = Object.values(ingredientsInfo).reduce(
       (acc, item) => acc + item.price * item.count,
       0
     );
-
     return {
       ...orderData,
       ingredientsInfo,
@@ -62,6 +57,5 @@ export const OrderInfo: FC = () => {
   if (!orderInfo) {
     return <Preloader />;
   }
-
   return <OrderInfoUI orderInfo={orderInfo} />;
 };
