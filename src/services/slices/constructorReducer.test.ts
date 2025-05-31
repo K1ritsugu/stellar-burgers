@@ -80,12 +80,12 @@ describe('constructor actions', () => {
       price: 988,
       image: 'https://code.s3.yandex.net/react/code/meat-03.png',
       image_mobile: 'https://code.s3.yandex.net/react/code/meat-03-mobile.png',
-      image_large: 'https://code.s3.yandex.net/react/code/meat-03-large.png'
+      image_large: 'https://code.s3.yandex.net/react/code/meat-03-large.png',
+      id: 'mockedID'
     };
     const endState: constructorState = JSON.parse(JSON.stringify(startState));
     endState.constructorItems.ingredients.push({
-      ...ingredient,
-      id: 'mockedID'
+      ...ingredient
     });
 
     const newState = constructorReducer(startState, addIngredient(ingredient));
